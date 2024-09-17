@@ -1,5 +1,9 @@
+# Declaração da lista
+estudantes = []
+
 # Mensagem de boas vindas e a criação do loop com while!
 while True:
+
     input("Bem vindo! Aperte enter para ir ao menu principal!")
 
     # Primeiro menu!
@@ -17,9 +21,6 @@ while True:
     if opcao == 1:
         print(f"Você escolheu a opção: {opcao}")
         print("A opção escolhida é válida!")
-
-        # Declaração da lista
-        estudantes = []
 
         # Segundo loop com o segundo menu!
         while True:
@@ -43,32 +44,66 @@ while True:
                 break  # Aqui faz com que volte para o menu principal!
 
             if opcao2 == 1:
-                estudantes.append(input("Escreva o nome do estudante:"))
-                # print(estudantes) Retirado pois toda vez que incluia o nome printava todos os nomes incluidos.
+                novoEstudante = {
+                    "nome": input("Digite o nome do estudante: "),
+                    "codigo": int(input("Digite o codigo do estudante: ")),
+                    "cpf": input("Digite o cpf do estudante: ")
+                }
+                estudantes.append(novoEstudante)
 
             if opcao2 == 2:
-                estudantes.sort()
-
                 if estudantes:
-                    print(f"Os estudantes cadastrados são: {estudantes}")
+                    print("Os estudantes cadastrados são:")
+                    for estudante in estudantes:
+                        print(f"Nome: {estudante['nome']}, Código: {
+                            estudante['codigo']}, CPF: {estudante['cpf']}")
 
                 else:
                     print("Nenhum estudante ainda foi cadastrado!")
 
             if opcao2 == 3:
-                print("A opção ainda esta em desenvolvimento.")
+                estudanteEdit = None
+                codigoEdit = int(
+                    input("Digite o codigo do aluno que você deseja editar: "))
+
+                for dicionarioEstudante in estudantes:
+                    if dicionarioEstudante["codigo"] == codigoEdit:
+                        estudanteEdit = dicionarioEstudante
+                        break
+
+                if estudanteEdit is None:
+                    print(f"Não encontrei o estudante com o codigo {
+                          codigoEdit} na lista.")
+
+                else:
+                    estudanteEdit["nome"] = (
+                        input("Digite o novo nome do estudante: "))
+                    estudanteEdit["codigo"] = int(
+                        input("Digite o novo codigo do estudante: "))
+                    estudanteEdit["cpf"] = (
+                        input("Digite o novo cpf do estudante: "))
 
             if opcao2 == 4:
-                print("A opção ainda esta em desenvolvimento.")
+                estudantRemove = None
+                codigoRemove = int(
+                    input("Digite o codigo do aluno que você deseja remover: "))
+
+                for dicionarioRemove in estudantes:
+                    if dicionarioRemove["codigo"] == codigoRemove:
+                        estudantRemove = dicionarioRemove
+                        break
+
+                if estudantRemove is None:
+                    print(f"Não encontrei o estudante com o codigo {
+                          codigoRemove} na lista. ")
+
+                else:
+                    estudantes.remove(estudantRemove)
+                    print("Estudante removido com sucesso.")
 
     if opcao == 0:
         print("Saindo do menu...")
         break  # Sai do loop while quando a opção for escolhida.
-
-    if opcao >= 2 and opcao <= 5:
-        print(f"Você escolheu a opção {opcao}.")
-        print("Essa opção ainda está em desenvolvimento.")
-        continue
 
     else:
         print("Você escolheu uma opção inválida!")
