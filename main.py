@@ -19,7 +19,6 @@ def primeiroMenu():
 def menuOperacoes():
     # Segundo menu!
     print("------- Menu de operações -------")
-
     print("1. Incluir.")
     print("2. Listar.")
     print("3. Atualizar.")
@@ -29,134 +28,135 @@ def menuOperacoes():
     return int(input("Digite uma opção válida:"))
 
 
-def novoCadastro(estudantes):
+def processarMenuOperacao(opcao, arquivo):
+    if opcao == 1:
+        novoCadastro(arquivo)
+    elif opcao == 2:
+        listarCadastros(arquivo)
+    elif opcao == 3:
+        editarCadastro(arquivo)
+    elif opcao == 4:
+        removerCadastro(arquivo)
+    elif opcao == 0:
+        print("Voltando ao menu principal!")
+        return False
+    else:
+        print("Opção inválida. Tente novamente.")
+
+    return True
+
+
+# Funções para todas as entidades (estudantes, professores, disciplinas, turmas, matrículas)
+def novoCadastro(arquivo):
+    registros = lerArquivo(arquivo)
     cadastro = {
-        "nome": input("Digite o nome do estudante: "),
-        "codigo": int(input("Digite o codigo do estudante: ")),
-        "cpf": input("Digite o cpf do estudante: ")
+        "nome": input("Digite o nome: "),
+        "codigo": int(input("Digite o codigo: "))
     }
+    registros.append(cadastro)
+    salvarArquivo(registros, arquivo)
+    print(f"{cadastro['nome']} cadastrado com sucesso!")
 
-    estudantes.append(cadastro)
-    salvarArquivo(estudantes, "cadastro.json")
 
-
-def listarCadastros(estudantes):
-
-    if estudantes:
-        print("Os estudantes cadastrados são:")
-        for estudante in estudantes:
-            print(f"Nome: {estudante['nome']}, Código: {
-                estudante['codigo']}, CPF: {estudante['cpf']}")
-
+def listarCadastros(arquivo):
+    registros = lerArquivo(arquivo)
+    if registros:
+        print("Os registros cadastrados são:")
+        for registro in registros:
+            print(f"Nome: {registro['nome']}, Código: {registro['codigo']}")
     else:
-        print("Nenhum estudante ainda foi cadastrado!")
+        print("Nenhum registro ainda foi cadastrado!")
 
 
-def editarCadastro(estudantes):
+def editarCadastro(arquivo):
+    registros = lerArquivo(arquivo)
+    codigoEdit = int(input("Digite o código que você deseja editar: "))
+    registroEdit = next(
+        (r for r in registros if r["codigo"] == codigoEdit), None)
 
-    estudanteEdit = None
-    codigoEdit = int(
-        input("Digite o codigo do aluno que você deseja editar: "))
-
-    for dicionarioEstudante in estudantes:
-        if dicionarioEstudante["codigo"] == codigoEdit:
-            estudanteEdit = dicionarioEstudante
-            break
-
-    if estudanteEdit is None:
-        print(f"Não encontrei o estudante com o codigo {
-              codigoEdit} na lista.")
-
+    if registroEdit is None:
+        print(f"Não encontrei o registro com o código {codigoEdit}.")
     else:
-        estudanteEdit["nome"] = (
-            input("Digite o novo nome do estudante: "))
-        estudanteEdit["codigo"] = int(
-            input("Digite o novo codigo do estudante: "))
-        estudanteEdit["cpf"] = (
-            input("Digite o novo cpf do estudante: "))
-
-    if estudanteEdit is not None:
-        estudantes.remove(estudanteEdit)
-        estudantes.append(estudanteEdit)
-        salvarArquivo(estudantes, "cadastro.json")
-        print("Estudante atualizado com sucesso...")
+        registroEdit["nome"] = input("Digite o novo nome: ")
+        registroEdit["codigo"] = int(input("Digite o novo código: "))
+        salvarArquivo(registros, arquivo)
+        print("Registro atualizado com sucesso.")
 
 
-def removerCadastro(estudantes):
-    estudantRemove = None
-    codigoRemove = int(
-        input("Digite o codigo do aluno que você deseja remover: "))
+def removerCadastro(arquivo):
+    registros = lerArquivo(arquivo)
+    codigoRemove = int(input("Digite o código que você deseja remover: "))
+    registroRemove = next(
+        (r for r in registros if r["codigo"] == codigoRemove), None)
 
-    for dicionarioRemove in estudantes:
-        if dicionarioRemove["codigo"] == codigoRemove:
-            estudantRemove = dicionarioRemove
-            break
-
-    if estudantRemove is None:
-        print(f"Não encontrei o estudante com o codigo {
-            codigoRemove} na lista. ")
-
+    if registroRemove is None:
+        print(f"Não encontrei o registro com o código {codigoRemove}.")
     else:
-        estudantes.remove(estudantRemove)
-        salvarArquivo(estudantes, "cadastro.json")
-        print("Estudante removido com sucesso.")
+        registros.remove(registroRemove)
+        salvarArquivo(registros, arquivo)
+        print("Registro removido com sucesso.")
 
 
-def salvarArquivo(estudantes, nomeArquivo):
+def salvarArquivo(dados, nomeArquivo):
     with open(nomeArquivo, "w", encoding='utf-8') as arquivoAberto:
-        json.dump(estudantes, arquivoAberto, ensure_ascii=False)
+        json.dump(dados, arquivoAberto, ensure_ascii=False)
 
 
 def lerArquivo(nomeArquivo):
     try:
         with open(nomeArquivo, "r", encoding='utf-8') as arquivoAberto:
-            estudantes = json.load(arquivoAberto)
-
-            return estudantes
-    except:
+            return json.load(arquivoAberto)
+    except FileNotFoundError:
         return []
 
 
-# Declaração da lista
-estudantes = lerArquivo("cadastro.json")
+# Declaração dos arquivos
+arquivo_estudante = "cadastro_estudantes.json"
+arquivo_professor = "cadastro_professores.json"
+arquivo_disciplina = "cadastro_disciplinas.json"
+arquivo_turma = "cadastro_turmas.json"
+arquivo_matricula = "cadastro_matriculas.json"
 
-# Mensagem de boas vindas e a criação do loop com while!
+
+# Mensagem de boas-vindas e a criação do loop com while!
 while True:
-
     opcao_menu = primeiroMenu()
 
-    # Segundo loop com o segundo menu!
-    while opcao_menu == 1:
+    if opcao_menu == 1:
+        # Gerenciar estudantes
+        while True:
+            opcao_operacao = menuOperacoes()
+            if not processarMenuOperacao(opcao_operacao, arquivo_estudante):
+                break
 
-        opcao = menuOperacoes()
+    elif opcao_menu == 2:
+        # Gerenciar professores
+        while True:
+            opcao_operacao = menuOperacoes()
+            if not processarMenuOperacao(opcao_operacao, arquivo_professor):
+                break
 
-        if opcao >= 1 and opcao <= 4:
-            print(f"Você escolheu a opção: {opcao}")
-            print("A opção escolhida é válida!")
+    elif opcao_menu == 3:
+        # Gerenciar disciplinas
+        while True:
+            opcao_operacao = menuOperacoes()
+            if not processarMenuOperacao(opcao_operacao, arquivo_disciplina):
+                break
 
-        if opcao == 0:
-            print("Voltando ao menu principal!")
-            break  # Aqui faz com que volte para o menu principal!
+    elif opcao_menu == 4:
+        # Gerenciar turmas
+        while True:
+            opcao_operacao = menuOperacoes()
+            if not processarMenuOperacao(opcao_operacao, arquivo_turma):
+                break
 
-        if opcao == 1:
-            novoCadastro(estudantes)
+    elif opcao_menu == 5:
+        # Gerenciar matrículas
+        while True:
+            opcao_operacao = menuOperacoes()
+            if not processarMenuOperacao(opcao_operacao, arquivo_matricula):
+                break
 
-        if opcao == 2:
-            listarCadastros(estudantes)
-
-        if opcao == 3:
-            editarCadastro(estudantes)
-
-        if opcao == 4:
-            removerCadastro(estudantes)
-
-    if opcao_menu >= 2 and opcao_menu <= 5:
-        print("Opção ainda em desenvolvimento...")
-        continue
-
-    if opcao_menu == 0:
-        print("Saindo do menu...")
-        break  # Sai do loop while quando a opção for escolhida.
-
-    else:
-        print("Você escolheu uma opção inválida!")
+    elif opcao_menu == 0:
+        print("Saindo do programa.")
+        break
