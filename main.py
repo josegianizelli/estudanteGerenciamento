@@ -1,5 +1,4 @@
-# Declaração da lista
-estudantes = []
+import json
 
 
 def primeiroMenu():
@@ -36,10 +35,13 @@ def novoCadastro(estudantes):
         "codigo": int(input("Digite o codigo do estudante: ")),
         "cpf": input("Digite o cpf do estudante: ")
     }
+
     estudantes.append(cadastro)
+    salvarArquivo(estudantes, "cadastro.json")
 
 
 def listarCadastros(estudantes):
+
     if estudantes:
         print("Os estudantes cadastrados são:")
         for estudante in estudantes:
@@ -51,6 +53,7 @@ def listarCadastros(estudantes):
 
 
 def editarCadastro(estudantes):
+
     estudanteEdit = None
     codigoEdit = int(
         input("Digite o codigo do aluno que você deseja editar: "))
@@ -72,6 +75,12 @@ def editarCadastro(estudantes):
         estudanteEdit["cpf"] = (
             input("Digite o novo cpf do estudante: "))
 
+    if estudanteEdit is not None:
+        estudantes.remove(estudanteEdit)
+        estudantes.append(estudanteEdit)
+        salvarArquivo(estudantes, "cadastro.json")
+        print("Estudante atualizado com sucesso...")
+
 
 def removerCadastro(estudantes):
     estudantRemove = None
@@ -89,11 +98,31 @@ def removerCadastro(estudantes):
 
     else:
         estudantes.remove(estudantRemove)
+        salvarArquivo(estudantes, "cadastro.json")
         print("Estudante removido com sucesso.")
 
 
+def salvarArquivo(estudantes, nomeArquivo):
+    with open(nomeArquivo, "w") as arquivoAberto:
+        json.dump(estudantes, arquivoAberto)
+
+
+def lerArquivo(nomeArquivo):
+    try:
+        with open(nomeArquivo, "r") as arquivoAberto:
+            estudantes = json.load(arquivoAberto)
+
+            return estudantes
+    except:
+        return []
+
+
+# Declaração da lista
+estudantes = lerArquivo("cadastro.json")
+
 # Mensagem de boas vindas e a criação do loop com while!
 while True:
+
     opcao_menu = primeiroMenu()
 
     # Segundo loop com o segundo menu!
