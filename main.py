@@ -103,13 +103,13 @@ def removerCadastro(estudantes):
 
 
 def salvarArquivo(estudantes, nomeArquivo):
-    with open(nomeArquivo, "w") as arquivoAberto:
-        json.dump(estudantes, arquivoAberto)
+    with open(nomeArquivo, "w", encoding='utf-8') as arquivoAberto:
+        json.dump(estudantes, arquivoAberto, ensure_ascii=False)
 
 
 def lerArquivo(nomeArquivo):
     try:
-        with open(nomeArquivo, "r") as arquivoAberto:
+        with open(nomeArquivo, "r", encoding='utf-8') as arquivoAberto:
             estudantes = json.load(arquivoAberto)
 
             return estudantes
