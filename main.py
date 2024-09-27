@@ -1,5 +1,7 @@
 import json
 
+# Função para chamada do primeiro menu e inicio do programa
+
 
 def primeiroMenu():
     input("Bem vindo! Aperte enter para ir ao menu principal!")
@@ -15,6 +17,8 @@ def primeiroMenu():
 
     return int(input("Digite uma opção válida:"))
 
+# Função do menu de operações para cada opção de menu
+
 
 def menuOperacoes():
     # Segundo menu!
@@ -27,14 +31,16 @@ def menuOperacoes():
 
     return int(input("Digite uma opção válida:"))
 
+# Função para processamento de dados do menu de operações
 
-def processarMenuOperacao(opcao, arquivo):
+
+def processarMenuOperacao(opcao, arquivo, tipo):
     if opcao == 1:
-        novoCadastro(arquivo)
+        novoCadastro(arquivo, tipo)
     elif opcao == 2:
-        listarCadastros(arquivo)
+        listarCadastros(arquivo, tipo)
     elif opcao == 3:
-        editarCadastro(arquivo)
+        editarCadastro(arquivo, tipo)
     elif opcao == 4:
         removerCadastro(arquivo)
     elif opcao == 0:
@@ -47,28 +53,107 @@ def processarMenuOperacao(opcao, arquivo):
 
 
 # Funções para todas as entidades (estudantes, professores, disciplinas, turmas, matrículas)
-def novoCadastro(arquivo):
+def novoCadastro(arquivo, tipo):
     registros = lerArquivo(arquivo)
-    cadastro = {
-        "nome": input("Digite o nome: "),
-        "codigo": int(input("Digite o codigo: "))
-    }
+    cadastro = {}
+
+    if tipo == "estudante":
+        codigo = int(input("Digite o código do estudante: "))
+        # Verifica se já existe um estudante com o mesmo código
+        if any(registro["codigo"] == codigo for registro in registros):
+            print("Esse estudante já é cadastrado no sistema.")
+            return  # Sai da função sem cadastrar um novo estudante
+
+        cadastro = {
+            "nome": input("Digite o nome do estudante: "),
+            "codigo": codigo
+        }
+
+    elif tipo == "professor":
+        codigo = int(input("Digite o código do professor: "))
+        # Verifica se já existe um professor com o mesmo código
+        if any(registro["codigo"] == codigo for registro in registros):
+            print("Esse professor já é cadastrado no sistema.")
+            return  # Sai da função sem cadastrar um novo professor
+
+        cadastro = {
+            "nome": input("Digite o nome do professor: "),
+            "codigo": codigo,
+            "cpf": input("Digite o CPF do professor: ")
+        }
+
+    elif tipo == "disciplina":
+        codigo = int(input("Digite o código da disciplina: "))
+        # Verifica se já existe uma disciplina com o mesmo código
+        if any(registro["codigo"] == codigo for registro in registros):
+            print("Essa disciplina já é cadastrada no sistema.")
+            return  # Sai da função sem cadastrar uma nova disciplina
+
+        cadastro = {
+            "nome": input("Digite o nome da disciplina: "),
+            "codigo": codigo
+        }
+
+    elif tipo == "turma":
+        codigo = int(input("Digite o código da turma: "))
+        # Verifica se já existe uma turma com o mesmo código
+        if any(registro["codigo"] == codigo for registro in registros):
+            print("Essa turma já é cadastrada no sistema.")
+            return  # Sai da função sem cadastrar uma nova turma
+
+        cadastro = {
+            "codigo": codigo,
+            "codigo_professor": int(input("Digite o código do professor: ")),
+            "codigo_disciplina": int(input("Digite o código da disciplina: "))
+        }
+
+    elif tipo == "matricula":
+        codigo_turma = int(input("Digite o código da turma: "))
+        codigo_estudante = int(input("Digite o código do estudante: "))
+        # Verifica se já existe uma matrícula com os mesmos códigos
+        if any(registro["codigo_turma"] == codigo_turma and registro["codigo_estudante"] == codigo_estudante for registro in registros):
+            print("Essa matrícula já existe no sistema.")
+            return  # Sai da função sem cadastrar uma nova matrícula
+
+        cadastro = {
+            "codigo_turma": codigo_turma,
+            "codigo_estudante": codigo_estudante
+        }
+
     registros.append(cadastro)
     salvarArquivo(registros, arquivo)
-    print(f"{cadastro['nome']} cadastrado com sucesso!")
+    print(f"{tipo.capitalize()} cadastrado com sucesso!")
+
+# Função de cadastro global
 
 
-def listarCadastros(arquivo):
+def listarCadastros(arquivo, tipo):
     registros = lerArquivo(arquivo)
     if registros:
-        print("Os registros cadastrados são:")
+        print(f"Os registros cadastrados ({tipo}) são:")
         for registro in registros:
-            print(f"Nome: {registro['nome']}, Código: {registro['codigo']}")
+            if tipo == "estudante":
+                print(f"Nome: {registro['nome']}, Código: {
+                      registro['codigo']}")
+            elif tipo == "professor":
+                print(f"Nome: {registro['nome']}, Código: {
+                      registro['codigo']}, CPF: {registro['cpf']}")
+            elif tipo == "disciplina":
+                print(f"Nome: {registro['nome']}, Código: {
+                      registro['codigo']}")
+            elif tipo == "turma":
+                print(f"Código da turma: {registro['codigo']}, Código do professor: {
+                      registro['codigo_professor']}, Código da disciplina: {registro['codigo_disciplina']}")
+            elif tipo == "matricula":
+                print(f"Código da turma: {registro['codigo_turma']}, Código do estudante: {
+                      registro['codigo_estudante']}")
     else:
-        print("Nenhum registro ainda foi cadastrado!")
+        print(f"Nenhum registro de {tipo} ainda foi cadastrado!")
+
+# Função de edição de cadastro global
 
 
-def editarCadastro(arquivo):
+def editarCadastro(arquivo, tipo):
     registros = lerArquivo(arquivo)
     codigoEdit = int(input("Digite o código que você deseja editar: "))
     registroEdit = next(
@@ -76,11 +161,37 @@ def editarCadastro(arquivo):
 
     if registroEdit is None:
         print(f"Não encontrei o registro com o código {codigoEdit}.")
-    else:
-        registroEdit["nome"] = input("Digite o novo nome: ")
-        registroEdit["codigo"] = int(input("Digite o novo código: "))
-        salvarArquivo(registros, arquivo)
-        print("Registro atualizado com sucesso.")
+        return
+
+    if tipo == "estudante":
+        registroEdit["nome"] = input("Digite o nome do estudante: ")
+        registroEdit["codigo"] = int(input("Digite o código do estudante: "))
+
+    elif tipo == "professor":
+        registroEdit["nome"] = input("Digite o nome do professor: ")
+        registroEdit["codigo"] = int(input("Digite o código do professor: "))
+        registroEdit["cpf"] = input("Digite o CPF do professor: ")
+
+    elif tipo == "disciplina":
+        registroEdit["nome"] = input("Digite o nome da disciplina: ")
+        registroEdit["codigo"] = int(input("Digite o código da disciplina: "))
+
+    elif tipo == "turma":
+        registroEdit["codigo"] = int(input("Digite o código da turma: "))
+        registroEdit["codigo_professor"] = int(
+            input("Digite o código do professor: "))
+        registroEdit["codigo_disciplina"] = int(
+            input("Digite o código da disciplina: "))
+
+    elif tipo == "matricula":
+        registroEdit["codigo_turma"] = int(input("Digite o código da turma: "))
+        registroEdit["codigo_estudante"] = int(
+            input("Digite o código do estudante: "))
+
+    salvarArquivo(registros, arquivo)
+    print("Registro atualizado com sucesso.")
+
+# Função de remoção de cadastro global
 
 
 def removerCadastro(arquivo):
@@ -96,10 +207,14 @@ def removerCadastro(arquivo):
         salvarArquivo(registros, arquivo)
         print("Registro removido com sucesso.")
 
+# Função para salvar os arquivos em json
+
 
 def salvarArquivo(dados, nomeArquivo):
     with open(nomeArquivo, "w", encoding='utf-8') as arquivoAberto:
         json.dump(dados, arquivoAberto, ensure_ascii=False)
+
+# Função para ler os arquivos em json
 
 
 def lerArquivo(nomeArquivo):
@@ -126,35 +241,35 @@ while True:
         # Gerenciar estudantes
         while True:
             opcao_operacao = menuOperacoes()
-            if not processarMenuOperacao(opcao_operacao, arquivo_estudante):
+            if not processarMenuOperacao(opcao_operacao, arquivo_estudante, "estudante"):
                 break
 
     elif opcao_menu == 2:
         # Gerenciar professores
         while True:
             opcao_operacao = menuOperacoes()
-            if not processarMenuOperacao(opcao_operacao, arquivo_professor):
+            if not processarMenuOperacao(opcao_operacao, arquivo_professor, "professor"):
                 break
 
     elif opcao_menu == 3:
         # Gerenciar disciplinas
         while True:
             opcao_operacao = menuOperacoes()
-            if not processarMenuOperacao(opcao_operacao, arquivo_disciplina):
+            if not processarMenuOperacao(opcao_operacao, arquivo_disciplina, "disciplina"):
                 break
 
     elif opcao_menu == 4:
         # Gerenciar turmas
         while True:
             opcao_operacao = menuOperacoes()
-            if not processarMenuOperacao(opcao_operacao, arquivo_turma):
+            if not processarMenuOperacao(opcao_operacao, arquivo_turma, "turma"):
                 break
 
     elif opcao_menu == 5:
         # Gerenciar matrículas
         while True:
             opcao_operacao = menuOperacoes()
-            if not processarMenuOperacao(opcao_operacao, arquivo_matricula):
+            if not processarMenuOperacao(opcao_operacao, arquivo_matricula, "matricula"):
                 break
 
     elif opcao_menu == 0:
